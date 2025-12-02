@@ -38,8 +38,7 @@ export function spinFromNumber(
   onFullRotation?: (n: number) => void,
 ): number {
   let currentNum = startingAt;
-  for (let i = 0; i < instructions.length; i++) {
-    const { distance, direction } = instructions[i];
+  for (const { distance, direction } of instructions) {
     const distanceValue = distance % 100;
     onFullRotation?.(Math.floor(distance / 100));
 
