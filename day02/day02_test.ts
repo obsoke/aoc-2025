@@ -2,6 +2,7 @@ import { assertEquals } from "@std/assert";
 import {
   findInvalidIdsFromRanges,
   findMultipleInvalidIdsFromRanges,
+  getListOfIdsFromRanges,
   type IdRange,
   sum,
 } from "./index.ts";
@@ -19,15 +20,16 @@ const ranges: IdRange[] = [
   { start: 824824821, end: 824824827 },
   { start: 2121212118, end: 2121212124 },
 ];
+const ids = getListOfIdsFromRanges(ranges);
 
 Deno.test("part 1 example", () => {
-  const invalidIds = findInvalidIdsFromRanges(ranges);
+  const invalidIds = findInvalidIdsFromRanges(ids);
   const answer = sum(invalidIds);
   assertEquals(answer, 1227775554);
 });
 
 Deno.test("part 2 example", () => {
-  const invalidIds = findMultipleInvalidIdsFromRanges(ranges);
+  const invalidIds = findMultipleInvalidIdsFromRanges(ids);
   const answer = sum(invalidIds);
   assertEquals(answer, 4174379265);
 });

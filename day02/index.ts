@@ -5,11 +5,12 @@ import { chunk } from "@std/collections/chunk";
 export async function run() {
   const input = await getFileLines("./day02/input_01.txt", ",");
   const ranges = createRangesFromInput(input);
-  const invalidIds = findInvalidIdsFromRanges(ranges);
+  const ids = getListOfIdsFromRanges(ranges);
+  const invalidIds = findInvalidIdsFromRanges(ids);
   const answer = sum(invalidIds);
   assertEquals(answer, 23534117921);
 
-  const invalidIds2 = findMultipleInvalidIdsFromRanges(ranges);
+  const invalidIds2 = findMultipleInvalidIdsFromRanges(ids);
   const answer2 = sum(invalidIds2);
   assertEquals(answer2, 31755323497);
 }
@@ -29,21 +30,33 @@ function createRangesFromInput(input: string[]): IdRange[] {
   });
 }
 
-export function findInvalidIdsFromRanges(ranges: IdRange[]): number[] {
-  const start = performance.now();
-  const invalidIds: number[] = [];
+export function getListOfIdsFromRanges(
+  ranges: IdRange[],
+): number[] {
+  const ids: number[] = [];
   for (const { start, end } of ranges) {
     let now = start;
     while (now <= end) {
-      const nowStr = now.toString();
-      const nowNum = now;
+      ids.push(now);
       now++;
-      if (nowStr.charAt(0) === "0") continue;
-      if (nowStr.length % 2 !== 0) continue;
-      const halfLength = nowStr.length / 2;
-      const lastHalf = nowStr.substring(halfLength);
-      if (nowStr.startsWith(lastHalf)) invalidIds.push(nowNum);
     }
+  }
+  return ids;
+}
+
+export function findInvalidIdsFromRanges(ids: number[]): number[] {
+  const start = performance.now();
+  const invalidIds: number[] = [];
+  for (const id of ids) {
+    const idStr = id.toString();
+
+    if (idStr.charAt(0) === "0") continue;
+    if (idStr.length % 2 !== 0) continue;
+
+    const halfLength = idStr.length / 2;
+    const lastHalf = idStr.substring(halfLength);
+
+    if (idStr.startsWith(lastHalf)) invalidIds.push(id);
   }
   console.log(`took ${performance.now() - start}ms`);
   return invalidIds;
@@ -51,36 +64,30 @@ export function findInvalidIdsFromRanges(ranges: IdRange[]): number[] {
 
 // hi i'm slow af
 // (well not *that* slow but not instant so might as well be slow af)
-export function findMultipleInvalidIdsFromRanges(ranges: IdRange[]): number[] {
+export function findMultipleInvalidIdsFromRanges(ids: number[]): number[] {
   const start = performance.now();
   const invalidIds: number[] = [];
-  for (const { start, end } of ranges) {
-    let now = start;
-    while (now <= end) {
-      const nowStr = now.toString();
-      const nowNum = now;
-      now++;
+  for (const id of ids) {
+    const idStr = id.toString();
 
-      // rules
-      if (nowStr.charAt(0) === "0") continue; // does this even happen? why was this called out?!
-      // NOTE: odd-digit numbers are allowed here, unlike pt1
+    // rules
+    if (idStr.charAt(0) === "0") continue; // does this even happen? why was this called out?!
+    // NOTE: odd-digit numbers are allowed here, unlike pt1
 
-      // prep. work
-      const halfLength = Math.floor(nowStr.length / 2);
-      const nowSplit = nowStr.split("");
+    // prep. work
+    const halfLength = Math.floor(idStr.length / 2);
+    const nowSplit = idStr.split("");
 
-      // oh no, 3 nested loops!
-      let chunkNum = 1;
-      while (chunkNum < halfLength + 1) {
-        const chunks = chunk(nowSplit, chunkNum);
-        const first = chunks[0].join("");
-        const doAllMatch = chunks.every((c) => c.join("") === first);
-        if (doAllMatch) {
-          invalidIds.push(nowNum);
-          break;
-        }
-        chunkNum++;
+    let chunkNum = 1;
+    while (chunkNum < halfLength + 1) {
+      const chunks = chunk(nowSplit, chunkNum);
+      const first = chunks[0].join("");
+      const doAllMatch = chunks.every((c) => c.join("") === first);
+      if (doAllMatch) {
+        invalidIds.push(id);
+        break;
       }
+      chunkNum++;
     }
   }
   console.log(`took ${performance.now() - start}ms`);
